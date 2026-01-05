@@ -175,7 +175,7 @@ def obtener_valores_pendientes(usuario):
     except Exception as e:
         return f"❌ Error al obtener valores pendientes: {str(e)}"
 
-# 🔹 Procesar mensajes (multiusuario)
+# 🔹 Procesar mensajes (multiusuario) con restricciones y opción de salir
 def procesar_mensaje_multiusuario(mensaje, sesion):
     mensaje = mensaje.strip().lower()
     ahora = datetime.now()
@@ -212,7 +212,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             else:
                 return "⚠ Cédula no encontrada. Verifica tu número e intenta nuevamente."
         else:
-            return ("👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
+            return ("👋 ¡Hola! Soy *Lukibot*.\n"
                     "Por favor ingresa tu número de cédula (solo números).")
 
     # 📋 Menú principal
@@ -233,7 +233,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
         sub = menu[opcion_actual]["subopciones"]
         if mensaje in sub:
             opcion_texto = sub[mensaje]
-            
+
             # ⚠ Restricciones para estudiantes
             if usuario_actual["rol"] == "estudiante" and opcion_texto in [
                 "Solicitar claves del Wi-Fi institucional",
@@ -256,7 +256,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
                     sesion["opcion"] = None
                     return mostrar_menu_principal()
 
-            # 🔹 Aquí llamamos automáticamente a la función correspondiente
+            # 🔹 Llamadas automáticas a funciones según texto
             if "horario" in opcion_texto.lower():
                 if usuario_actual["rol"] == "docente":
                     return obtener_horario_docente(usuario_actual)
@@ -275,6 +275,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
                 if usuario_actual["rol"] == "docente":
                     return "🚫 Estimado docente, esta opción no está disponible para su rol."
                 return obtener_valores_pendientes(usuario_actual)
+
             # TXT
             txt = leer_txt(opcion_texto)
             if txt != "❌ Archivo de información no encontrado.":
@@ -314,4 +315,3 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
