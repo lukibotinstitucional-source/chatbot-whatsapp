@@ -136,7 +136,7 @@ def obtener_materias(usuario):
         materias = [str(row[0]) for row in ws.iter_rows(values_only=True) if row[0]]
         return "📚 *Materias del curso {}*:\n- ".format(usuario["curso"]) + "\n- ".join(materias) if materias else "❌ No se encontraron materias."
     except Exception as e:
-        return f"❌ Error al obtener materias: {str(e)}"
+        return f"❌ Error al obtener materias: {str(e)}
 
 def obtener_profesores(usuario):
     try:
@@ -175,10 +175,20 @@ def obtener_valores_pendientes(usuario):
     except Exception as e:
         return f"❌ Error al obtener valores pendientes: {str(e)}"
 
-# 🔹 Procesar mensajes (multiusuario)
+# 🔹 Procesar mensajes multiusuario seguro
 def procesar_mensaje_multiusuario(mensaje, sesion):
-    mensaje = mensaje.strip().lower()
     ahora = datetime.now()
+    
+    # Aseguramos que la sesión siempre tenga valores válidos
+    if "usuario" not in sesion or sesion["usuario"] is None:
+        sesion["usuario"] = {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None}
+    if "nivel" not in sesion or sesion["nivel"] is None:
+        sesion["nivel"] = "menu_principal"
+    if "opcion" not in sesion:
+        sesion["opcion"] = None
+    if "ultimo" not in sesion:
+        sesion["ultimo"] = None
+
     usuario_actual = sesion["usuario"]
     nivel_actual = sesion["nivel"]
     opcion_actual = sesion["opcion"]
@@ -193,10 +203,11 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             "ultimo": ahora
         })
         return ("⏰ La sesión se cerró por inactividad.\n\n"
-                "👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
+                "👋 ¡Hola! Soy *Lukibot*, el asistente virtual.\n"
                 "Por favor ingresa tu número de cédula.")
 
     sesion["ultimo"] = ahora
+    mensaje = mensaje.strip().lower()
 
     # 🔐 Inicio / cédula
     if usuario_actual["rol"] is None:
@@ -206,14 +217,13 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
                 info["archivo"] = info.get("curso", "").strip() + ".xlsx"
                 info["cedula"] = mensaje
                 sesion["usuario"] = info
-                rol = info["rol"].upper()
                 sesion["nivel"] = "menu_principal"
+                rol = info["rol"].upper()
                 return f"✅ Bienvenido {info['nombre']}. Has ingresado como *{rol}*.\n" + mostrar_menu_principal()
             else:
-                return "⚠ Cédula no encontrada. Verifica tu número e intenta nuevamente."
+                return "⚠ Cédula no encontrada. Verifica tu número."
         else:
-            return ("👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
-                    "Por favor ingresa tu número de cédula (solo números).")
+            return "👋 ¡Hola! Por favor ingresa tu número de cédula (solo números)."
 
     # 📋 Menú principal
     if nivel_actual == "menu_principal":
@@ -221,20 +231,42 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             sesion["opcion"] = mensaje
             sesion["nivel"] = "submenu"
             return mostrar_submenu(mensaje)
-        else:
-            return "⚠ Opción no válida."
+        return "⚠ Opción no válida."
 
     # 📂 Submenú
     if nivel_actual == "submenu":
         if mensaje == "0":
             sesion["nivel"] = "menu_principal"
+            sesion["opcion"] = None
             return mostrar_menu_principal()
 
         sub = menu[opcion_actual]["subopciones"]
         if mensaje in sub:
             opcion_texto = sub[mensaje]
 
-            # 🔹 Aquí llamamos automáticamente a la función correspondiente
+            # Restricciones estudiantes
+            if usuario_actual["rol"] == "estudiante" and opcion_texto in [
+                "Solicitar claves del Wi-Fi institucional",
+                "Reglamento interno para docentes"
+            ]:
+                return "🚫 No tienes permiso para acceder a esta opción."
+
+            # Opción salir del chatbot (10)
+            if opcion_actual == "10":
+                if mensaje == "1" or opcion_texto.lower() == "finalizar conversación":
+                    sesion.update({
+                        "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
+                        "nivel": "menu_principal",
+                        "opcion": None,
+                        "ultimo": ahora
+                    })
+                    return "🔄 Sesión finalizada. Por favor ingresa tu número de cédula."
+                if mensaje == "2" or opcion_texto.lower() == "volver al inicio":
+                    sesion["nivel"] = "menu_principal"
+                    sesion["opcion"] = None
+                    return mostrar_menu_principal()
+
+            # Llamadas a funciones según la opción
             if "horario" in opcion_texto.lower():
                 if usuario_actual["rol"] == "docente":
                     return obtener_horario_docente(usuario_actual)
@@ -253,27 +285,39 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
                 if usuario_actual["rol"] == "docente":
                     return "🚫 Estimado docente, esta opción no está disponible para su rol."
                 return obtener_valores_pendientes(usuario_actual)
+
             # TXT
             txt = leer_txt(opcion_texto)
             if txt != "❌ Archivo de información no encontrado.":
                 return txt
 
             return f"📄 Has seleccionado: *{opcion_texto}*"
-        else:
-            return "⚠ Opción no válida."
+
+        return "⚠ Opción no válida."
 
     return "❓ No entendí tu mensaje."
 
 # 🔹 Webhook Flask
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    mensaje = request.form.get("Body", None)
-    usuario_id = request.form.get("From", None)
+    mensaje = request.form.get("Body", "").strip().lower()
+    usuario_id = request.form.get("From")
 
-    print("Mensaje recibido:", mensaje)
-    print("Usuario:", usuario_id)
+    # Crear sesión si no existe
+    if usuario_id not in sesiones:
+        sesiones[usuario_id] = {
+            "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
+            "nivel": "menu_principal",
+            "opcion": None,
+            "ultimo": None
+        }
 
-    return "OK"
+    sesion = sesiones[usuario_id]
+    respuesta = procesar_mensaje_multiusuario(mensaje, sesion)
+
+    resp = MessagingResponse()
+    resp.message(respuesta)
+    return str(resp)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -281,5 +325,3 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
-
