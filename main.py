@@ -6,6 +6,9 @@ from lector_excel import buscar_cedula
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 
+# 🚀 Crear app Flask ANTES de las rutas
+app = Flask(__name__)
+
 # 🧩 Sesiones por usuario (multiusuario)
 sesiones = {}
 
@@ -45,10 +48,9 @@ def leer_txt(nombre_archivo):
     except FileNotFoundError:
         return "❌ Archivo de información no encontrado."
 
-# 🔹 (TODAS tus funciones de Excel se mantienen IGUAL)
+# 🔹 (Tus funciones de Excel se mantienen igual)
 # obtener_horario, obtener_horario_docente, obtener_materias_docente,
 # obtener_claves, obtener_materias, obtener_profesores, obtener_valores_pendientes
-# ⬆️ NO SE TOCAN (las dejo iguales para no alargar el mensaje)
 
 # 🔹 Procesar mensajes (MULTIUSUARIO)
 def procesar_mensaje(mensaje, sesion):
@@ -107,7 +109,11 @@ def procesar_mensaje(mensaje, sesion):
 
     return "❓ No entendí tu mensaje."
 
-# 🚀 --- FLASK + TWILIO ---
+# 🚨 --- Rutas Flask ---
+@app.route("/", methods=["GET"])
+def home():
+    return "Servidor Flask activo ✅"
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     mensaje = request.form.get("Body", "").strip().lower()
@@ -124,15 +130,12 @@ def webhook():
 
     sesion = sesiones[usuario_id]
 
-    respuesta = procesar_mensaje(mensaje, sesion)  # ahora SI pasamos la sesión
+    respuesta = procesar_mensaje(mensaje, sesion)
 
     resp = MessagingResponse()
     resp.message(respuesta)
     return str(resp)
 
-
+# 🔹 Ejecutar app
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
-    
-
-
+    app.run(host="0.0.0.0", port=5000, debug=False)
