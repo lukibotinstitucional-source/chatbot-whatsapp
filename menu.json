@@ -1,0 +1,87 @@
+{
+    "1": {
+        "titulo": "Información Académica",
+        "subopciones": {
+            "1": "Ver horarios de clases",
+            "2": "Revisar materias inscritas",
+            "3": "Ver lista de profesores por curso",
+            "4": "Horario de recuperación o supletorios"
+        }
+    },
+    "2": {
+        "titulo": "Información del Personal Educativo",
+        "subopciones": {
+            "1": "Lista de profesores por nivel o area",
+            "2": "Contacto institucional del docente",
+            "3": "Horario de atención a padres"
+        }
+    },
+    "3": {
+        "titulo": "Autoridades y Directivos",
+        "subopciones": {
+            "1": "Nombre del rector(a)",
+            "2": "Vicerrector(a) academico y disciplinario",
+            "3": "Secretaria institucional",
+            "4": "Coordinadores de area",
+            "5": "Psicólogo(a) o DECE",
+            "6": "Contactar con una autoridad"
+        }
+    },
+    "4": {
+        "titulo": "Trámites y Documentos",
+        "subopciones": {
+            "1": "Solicitud de certificado de matricula",
+            "2": "Solicitud de certificado de comportamiento",
+            "3": "Solicitud de actas o boletines",
+            "4": "Requisitos para matricula nueva o traslado"
+        }
+    },
+    "5": {
+        "titulo": "Información Financiera",
+        "subopciones": {
+            "1": "Consultar valores pendientes",
+            "2": "Medios y fechas de pago",
+            "3": "Becas"
+        }
+    },
+    "6": {
+        "titulo": "Claves y Accesos",
+        "subopciones": {
+            "1": "Solicitar claves del Wi-Fi institucional",
+            "2": "Acceso a la plataforma educativa",
+            "3": "Correo institucional"
+        }
+    },
+    "7": {
+        "titulo": "Eventos y Actividades",
+        "subopciones": {
+            "1": "Proximos eventos academicos",
+            "2": "Fechas de entrega de proyectos",
+            "3": "Eventos deportivos o culturales",
+            "4": "Participacion estudiantil"
+        }
+    },
+    "8": {
+        "titulo": "Comunicados y Noticias",
+        "subopciones": {
+            "1": "Ultimos comunicados oficiales",
+            "2": "Informacion urgente (suspensiones, etc.)"
+        }
+    },
+    "9": {
+        "titulo": "Normativas y Reglamento",
+        "subopciones": {
+            "1": "Manual de convivencia",
+            "2": "Normativa de evaluaciones",
+            "3": "Normas de conducta estudiantil",
+            "4": "Reglamento interno para docentes"
+        }
+    },
+    "10": {
+        "titulo": "Salir del chatbot",
+        "subopciones": {
+            "1": "Finalizar conversación",
+            "2": "Volver al inicio"
+        }
+    }
+}
