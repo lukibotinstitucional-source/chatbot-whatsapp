@@ -6,7 +6,7 @@ from lector_excel import buscar_cedula
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 
-# 🚀 Crear app Flask ANTES de las rutas
+# 🚀 Flask app
 app = Flask(__name__)
 
 # 🧩 Sesiones por usuario (multiusuario)
@@ -48,76 +48,227 @@ def leer_txt(nombre_archivo):
     except FileNotFoundError:
         return "❌ Archivo de información no encontrado."
 
-# 🔹 (Tus funciones de Excel se mantienen igual)
-# obtener_horario, obtener_horario_docente, obtener_materias_docente,
-# obtener_claves, obtener_materias, obtener_profesores, obtener_valores_pendientes
+# 🔹 Funciones Excel (copiadas de tu código funcional)
+def obtener_horario(usuario):
+    archivo = os.path.join("datos", usuario.get("curso", "").strip() + ".xlsx")
+    if not os.path.exists(archivo):
+        return f"❌ No se encontró el archivo del curso: {usuario.get('curso', '')}"
+    try:
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Horario" not in wb.sheetnames:
+            return "❌ Hoja 'Horario' no encontrada."
+        ws = wb["Horario"]
+        contenido = ""
+        for row in ws.iter_rows(values_only=True):
+            fila = [str(celda) for celda in row if celda]
+            if fila:
+                contenido += " | ".join(fila) + "\n"
+        return f"🕒 *Horario del curso {usuario['curso']}*\n{contenido}" if contenido else "❌ No se encontró horario para este curso."
+    except Exception as e:
+        return f"❌ Error al obtener horario: {str(e)}"
 
-# 🔹 Procesar mensajes (MULTIUSUARIO)
-def procesar_mensaje(mensaje, sesion):
+def obtener_horario_docente(usuario):
+    try:
+        archivo = os.path.join("datos", "docentes.xlsx")
+        if not os.path.exists(archivo):
+            return "❌ Archivo de docentes no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Horario" not in wb.sheetnames:
+            return "❌ Hoja 'Horario' no encontrada."
+        ws = wb["Horario"]
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            cedula_excel, link = row
+            if str(cedula_excel).strip() == str(usuario["cedula"]).strip():
+                return f"🕒 *Horario del Docente*\n{link}"
+        return "❌ No se encontró horario asignado para tu cédula."
+    except Exception as e:
+        return f"❌ Error al obtener horario: {str(e)}"
+
+def obtener_materias_docente(usuario):
+    try:
+        archivo = os.path.join("datos", "docentes.xlsx")
+        if not os.path.exists(archivo):
+            return "❌ Archivo de docentes no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Materias" not in wb.sheetnames:
+            return "❌ Hoja 'Materias' no encontrada."
+        ws = wb["Materias"]
+        materias = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            cedula_excel, materia = row
+            if str(cedula_excel).strip() == str(usuario["cedula"]).strip() and materia:
+                materias.append(str(materia))
+        return "📚 *Materias que dictas:*\n- " + "\n- ".join(materias) if materias else "❌ No se encontraron materias asignadas a tu cédula."
+    except Exception as e:
+        return f"❌ Error al obtener materias: {str(e)}"
+
+def obtener_claves(usuario):
+    try:
+        archivo = os.path.join("datos", usuario.get("archivo", ""))
+        if not os.path.exists(archivo):
+            return "❌ Archivo del curso no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Claves" not in wb.sheetnames:
+            return "❌ Hoja 'Claves' no encontrada."
+        ws = wb["Claves"]
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            cedula_excel, *resto = row
+            if str(cedula_excel).strip() == str(usuario["cedula"]).strip():
+                if len(resto) == 1:
+                    contraseña = resto[0]
+                    return f"🔐 *Acceso a la plataforma educativa*\n👤 Cédula: {cedula_excel}\n🔑 Contraseña: {contraseña}"
+                elif len(resto) >= 2:
+                    usuario_plat, contraseña = resto[:2]
+                    return f"🔐 *Acceso a la plataforma educativa*\n👤 Usuario: {usuario_plat}\n🔑 Contraseña: {contraseña}"
+        return "❌ No se encontraron credenciales para esta cédula."
+    except Exception as e:
+        return f"❌ Error al obtener las claves: {str(e)}"
+
+def obtener_materias(usuario):
+    try:
+        archivo = os.path.join("datos", usuario.get("curso", "").strip() + ".xlsx")
+        if not os.path.exists(archivo):
+            return "❌ Archivo del curso no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Materias" not in wb.sheetnames:
+            return "❌ Hoja 'Materias' no encontrada."
+        ws = wb["Materias"]
+        materias = [str(row[0]) for row in ws.iter_rows(values_only=True) if row[0]]
+        return "📚 *Materias del curso {}*:\n- ".format(usuario["curso"]) + "\n- ".join(materias) if materias else "❌ No se encontraron materias."
+    except Exception as e:
+        return f"❌ Error al obtener materias: {str(e)}"
+
+def obtener_profesores(usuario):
+    try:
+        archivo = os.path.join("datos", usuario.get("curso", "").strip() + ".xlsx")
+        if not os.path.exists(archivo):
+            return "❌ Archivo del curso no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Profesores" not in wb.sheetnames:
+            return "❌ Hoja 'Profesores' no encontrada."
+        ws = wb["Profesores"]
+        profesores = [str(row[0]) for row in ws.iter_rows(values_only=True) if row[0]]
+        return "👨‍🏫 *Profesores del curso {}*:\n- ".format(usuario["curso"]) + "\n- ".join(profesores) if profesores else "❌ No se encontraron profesores."
+    except Exception as e:
+        return f"❌ Error al obtener profesores: {str(e)}"
+
+def obtener_valores_pendientes(usuario):
+    try:
+        archivo = os.path.join("datos", usuario.get("archivo", ""))
+        if not os.path.exists(archivo):
+            return "❌ Archivo del curso no encontrado."
+        wb = load_workbook(filename=archivo, data_only=True)
+        if "Pagos" not in wb.sheetnames:
+            return "❌ Hoja 'Pagos' no encontrada."
+        ws = wb["Pagos"]
+        pendientes = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            cedula_excel, mes, monto = row
+            if str(cedula_excel).strip() == str(usuario["cedula"]).strip():
+                pendientes.append((mes, monto))
+        if not pendientes:
+            return "✅ No tienes valores pendientes."
+        mensaje = f"💰 *Valores pendientes para {usuario['nombre']}*:\n"
+        for mes, monto in pendientes:
+            mensaje += f"- {mes}: ${monto}\n"
+        return mensaje
+    except Exception as e:
+        return f"❌ Error al obtener valores pendientes: {str(e)}"
+
+# 🔹 Procesar mensajes (multiusuario)
+def procesar_mensaje_multiusuario(mensaje, sesion):
     mensaje = mensaje.strip().lower()
     ahora = datetime.now()
+    usuario_actual = sesion["usuario"]
+    nivel_actual = sesion["nivel"]
+    opcion_actual = sesion["opcion"]
+    ultimo_mensaje = sesion.get("ultimo")
 
     # ⏰ Expiración por inactividad
-    if sesion["ultimo"] and (ahora - sesion["ultimo"] > timedelta(minutes=10)):
+    if ultimo_mensaje and (ahora - ultimo_mensaje > timedelta(minutes=10)):
         sesion.update({
             "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
             "nivel": "menu_principal",
             "opcion": None,
             "ultimo": ahora
         })
-        return (
-            "⏰ La sesión se cerró por inactividad.\n\n"
-            "👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
-            "Por favor ingresa tu número de cédula."
-        )
+        return ("⏰ La sesión se cerró por inactividad.\n\n"
+                "👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
+                "Por favor ingresa tu número de cédula.")
 
     sesion["ultimo"] = ahora
-    usuario = sesion["usuario"]
 
     # 🔐 Inicio / cédula
-    if usuario["rol"] is None:
+    if usuario_actual["rol"] is None:
         if mensaje.isdigit() and len(mensaje) >= 10:
             info = buscar_cedula(mensaje)
             if info:
                 info["archivo"] = info.get("curso", "").strip() + ".xlsx"
                 info["cedula"] = mensaje
                 sesion["usuario"] = info
-                return f"✅ Bienvenido {info['nombre']}.\n" + mostrar_menu_principal()
-            return "⚠ Cédula no encontrada."
-        return (
-            "👋 ¡Hola! Soy *Lukibot*.\n"
-            "Por favor ingresa tu número de cédula (solo números)."
-        )
+                rol = info["rol"].upper()
+                sesion["nivel"] = "menu_principal"
+                return f"✅ Bienvenido {info['nombre']}. Has ingresado como *{rol}*.\n" + mostrar_menu_principal()
+            else:
+                return "⚠ Cédula no encontrada. Verifica tu número e intenta nuevamente."
+        else:
+            return ("👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
+                    "Por favor ingresa tu número de cédula (solo números).")
 
     # 📋 Menú principal
-    if sesion["nivel"] == "menu_principal":
+    if nivel_actual == "menu_principal":
         if mensaje in menu:
             sesion["opcion"] = mensaje
             sesion["nivel"] = "submenu"
             return mostrar_submenu(mensaje)
-        return "⚠ Opción no válida."
+        else:
+            return "⚠ Opción no válida."
 
     # 📂 Submenú
-    if sesion["nivel"] == "submenu":
+    if nivel_actual == "submenu":
         if mensaje == "0":
             sesion["nivel"] = "menu_principal"
             return mostrar_menu_principal()
 
-        sub = menu[sesion["opcion"]]["subopciones"]
+        sub = menu[opcion_actual]["subopciones"]
         if mensaje in sub:
-            return f"📄 Has seleccionado: *{sub[mensaje]}*"
+            opcion_texto = sub[mensaje]
+
+            # 🔹 Aquí llamamos automáticamente a la función correspondiente
+            if "horario" in opcion_texto.lower():
+                if usuario_actual["rol"] == "docente":
+                    return obtener_horario_docente(usuario_actual)
+                else:
+                    return obtener_horario(usuario_actual)
+            if "materias" in opcion_texto.lower():
+                if usuario_actual["rol"] == "docente":
+                    return obtener_materias_docente(usuario_actual)
+                else:
+                    return obtener_materias(usuario_actual)
+            if "profesores" in opcion_texto.lower():
+                return obtener_profesores(usuario_actual)
+            if "plataforma educativa" in opcion_texto.lower():
+                return obtener_claves(usuario_actual)
+            if "valores pendientes" in opcion_texto.lower():
+                if usuario_actual["rol"] == "docente":
+                    return "🚫 Estimado docente, esta opción no está disponible para su rol."
+                return obtener_valores_pendientes(usuario_actual)
+            # TXT
+            txt = leer_txt(opcion_texto)
+            if txt != "❌ Archivo de información no encontrado.":
+                return txt
+
+            return f"📄 Has seleccionado: *{opcion_texto}*"
+        else:
+            return "⚠ Opción no válida."
 
     return "❓ No entendí tu mensaje."
 
-# 🚨 --- Rutas Flask ---
-@app.route("/", methods=["GET"])
-def home():
-    return "Servidor Flask activo ✅"
-
+# 🔹 Webhook Flask
 @app.route("/webhook", methods=["POST"])
 def webhook():
     mensaje = request.form.get("Body", "").strip().lower()
-    usuario_id = request.form.get("From")  # número de WhatsApp del usuario
+    usuario_id = request.form.get("From")
 
     # Crear sesión si no existe
     if usuario_id not in sesiones:
@@ -129,13 +280,15 @@ def webhook():
         }
 
     sesion = sesiones[usuario_id]
-
-    respuesta = procesar_mensaje(mensaje, sesion)
+    respuesta = procesar_mensaje_multiusuario(mensaje, sesion)
 
     resp = MessagingResponse()
     resp.message(respuesta)
     return str(resp)
 
-# 🔹 Ejecutar app
+@app.route("/", methods=["GET"])
+def home():
+    return "Servidor Flask activo ✅"
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
