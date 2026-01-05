@@ -3,3 +3,4 @@ twilio
 openpyxl
 python-dotenv
 gunicorn
+pandas
