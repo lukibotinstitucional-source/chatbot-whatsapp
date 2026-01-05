@@ -267,24 +267,13 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
 # 🔹 Webhook Flask
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    mensaje = request.form.get("Body", "").strip().lower()
-    usuario_id = request.form.get("From")
+    mensaje = request.form.get("Body", None)
+    usuario_id = request.form.get("From", None)
 
-    # Crear sesión si no existe
-    if usuario_id not in sesiones:
-        sesiones[usuario_id] = {
-            "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
-            "nivel": "menu_principal",
-            "opcion": None,
-            "ultimo": None
-        }
+    print("Mensaje recibido:", mensaje)
+    print("Usuario:", usuario_id)
 
-    sesion = sesiones[usuario_id]
-    respuesta = procesar_mensaje_multiusuario(mensaje, sesion)
-
-    resp = MessagingResponse()
-    resp.message(respuesta)
-    return str(resp)
+    return "OK"
 
 @app.route("/", methods=["GET"])
 def home():
@@ -292,4 +281,5 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
 
