@@ -175,7 +175,7 @@ def obtener_valores_pendientes(usuario):
     except Exception as e:
         return f"❌ Error al obtener valores pendientes: {str(e)}"
 
-# 🔹 Procesar mensajes (multiusuario) con restricciones y opción de salir
+# 🔹 Procesar mensajes (multiusuario)
 def procesar_mensaje_multiusuario(mensaje, sesion):
     mensaje = mensaje.strip().lower()
     ahora = datetime.now()
@@ -212,7 +212,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             else:
                 return "⚠ Cédula no encontrada. Verifica tu número e intenta nuevamente."
         else:
-            return ("👋 ¡Hola! Soy *Lukibot*.\n"
+            return ("👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
                     "Por favor ingresa tu número de cédula (solo números).")
 
     # 📋 Menú principal
@@ -234,29 +234,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
         if mensaje in sub:
             opcion_texto = sub[mensaje]
 
-            # ⚠ Restricciones para estudiantes
-            if usuario_actual["rol"] == "estudiante" and opcion_texto in [
-                "Solicitar claves del Wi-Fi institucional",
-                "Reglamento interno para docentes"
-            ]:
-                return "🚫 No tienes permiso para acceder a esta opción."
-
-            # 🔹 Manejo de "Salir del chatbot" opción 10
-            if opcion_actual == "10":  # Opción salir
-                if mensaje == "1" or opcion_texto.lower() == "finalizar conversación":
-                    sesion.update({
-                        "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
-                        "nivel": "menu_principal",
-                        "opcion": None,
-                        "ultimo": ahora
-                    })
-                    return "🔄 Sesión finalizada. Por favor ingresa tu número de cédula para iniciar nuevamente."
-                if mensaje == "2" or opcion_texto.lower() == "volver al inicio":
-                    sesion["nivel"] = "menu_principal"
-                    sesion["opcion"] = None
-                    return mostrar_menu_principal()
-
-            # 🔹 Llamadas automáticas a funciones según texto
+            # 🔹 Aquí llamamos automáticamente a la función correspondiente
             if "horario" in opcion_texto.lower():
                 if usuario_actual["rol"] == "docente":
                     return obtener_horario_docente(usuario_actual)
@@ -275,7 +253,6 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
                 if usuario_actual["rol"] == "docente":
                     return "🚫 Estimado docente, esta opción no está disponible para su rol."
                 return obtener_valores_pendientes(usuario_actual)
-
             # TXT
             txt = leer_txt(opcion_texto)
             if txt != "❌ Archivo de información no encontrado.":
@@ -315,3 +292,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
