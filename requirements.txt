@@ -2,3 +2,4 @@ flask
 twilio
 openpyxl
 python-dotenv
+gunicorn
