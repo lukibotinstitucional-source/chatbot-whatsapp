@@ -233,6 +233,28 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
         sub = menu[opcion_actual]["subopciones"]
         if mensaje in sub:
             opcion_texto = sub[mensaje]
+            
+            # ⚠ Restricciones para estudiantes
+            if usuario_actual["rol"] == "estudiante" and opcion_texto in [
+                "Solicitar claves del Wi-Fi institucional",
+                "Reglamento interno para docentes"
+            ]:
+                return "🚫 No tienes permiso para acceder a esta opción."
+
+            # 🔹 Manejo de "Salir del chatbot" opción 10
+            if opcion_actual == "10":  # Opción salir
+                if mensaje == "1" or opcion_texto.lower() == "finalizar conversación":
+                    sesion.update({
+                        "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
+                        "nivel": "menu_principal",
+                        "opcion": None,
+                        "ultimo": ahora
+                    })
+                    return "🔄 Sesión finalizada. Por favor ingresa tu número de cédula para iniciar nuevamente."
+                if mensaje == "2" or opcion_texto.lower() == "volver al inicio":
+                    sesion["nivel"] = "menu_principal"
+                    sesion["opcion"] = None
+                    return mostrar_menu_principal()
 
             # 🔹 Aquí llamamos automáticamente a la función correspondiente
             if "horario" in opcion_texto.lower():
@@ -292,3 +314,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
