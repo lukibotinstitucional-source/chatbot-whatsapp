@@ -1,0 +1,31 @@
+Estimado usuario, a continuación se presenta la lista de profesores organizada por área académica y por materia. Por favor, consulte la información correspondiente a su interés:
+
+--- Área: Ciencias Naturales (CCNN) ---
+- Ines Aguirre
+
+
+--- Área: Informática ---
+- Ing. Eddy Alavardo
+- Tlg. Manuel Mazzini
+- Ing. Ninrod Vargas
+
+--- Área: Contabilidad ---
+- Roxana
+- Ing. Joffre Chiqui
+- Paola
+
+--- Área: Ciencias Sociales ---
+- Sully Yagual
+
+--- Área: Otras Materias ---
+ECA:
+- [Nombre del profesor]
+
+Educación Física:
+- Lic. Richar
+
+Religión:
+- Doc. Diego Galarza
+
+
+Para mayor información sobre los profesores o cambios de asignación, por favor comuníquese con la secretaría académica.

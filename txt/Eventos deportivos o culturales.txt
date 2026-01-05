@@ -1,0 +1,23 @@
+Estimado usuario, a continuación se presenta información sobre los próximos eventos deportivos y culturales organizados por nuestra institución. Se recomienda participar según corresponda y respetar las indicaciones de los organizadores:
+
+1. **Torneo Deportivo Intercolegial**  
+   Fecha: [DD/MM/AAAA]  
+   Hora: [HH:MM]  
+   Lugar: [Lugar del evento]  
+   Descripción: Competencia deportiva entre distintos niveles y áreas, incluyendo fútbol, voleibol y atletismo.
+
+2. **Festival Cultural**  
+   Fecha: [DD/MM/AAAA]  
+   Hora: [HH:MM]  
+   Lugar: [Lugar del evento]  
+   Descripción: Actividades artísticas, musicales y teatrales para promover la cultura y la integración estudiantil.
+
+3. **Olimpiadas Internas de Conocimiento y Creatividad**  
+   Fecha: [DD/MM/AAAA]  
+   Hora: [HH:MM]  
+   Lugar: [Lugar del evento]  
+   Descripción: Competencias académicas y creativas que fomentan el trabajo en equipo y el aprendizaje.
+
+Para mayor información sobre eventos, inscripción o cambios de fecha, por favor comuníquese con la secretaría académica al número oficial: [Número de teléfono] o al correo institucional: [correo@institucion.edu].
+
+Agradecemos su participación y entusiasmo.
