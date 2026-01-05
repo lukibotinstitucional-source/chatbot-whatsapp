@@ -108,23 +108,31 @@ def procesar_mensaje(mensaje, sesion):
     return "❓ No entendí tu mensaje."
 
 # 🚀 --- FLASK + TWILIO ---
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def home():
-    return "Servidor Flask activo ✅"
-
 @app.route("/webhook", methods=["POST"])
 def webhook():
     mensaje = request.form.get("Body", "").strip().lower()
+    usuario_id = request.form.get("From")  # número de WhatsApp del usuario
 
-    respuesta = procesar_mensaje(mensaje)  # TU lógica
+    # Crear sesión si no existe
+    if usuario_id not in sesiones:
+        sesiones[usuario_id] = {
+            "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
+            "nivel": "menu_principal",
+            "opcion": None,
+            "ultimo": None
+        }
+
+    sesion = sesiones[usuario_id]
+
+    respuesta = procesar_mensaje(mensaje, sesion)  # ahora SI pasamos la sesión
 
     resp = MessagingResponse()
     resp.message(respuesta)
     return str(resp)
 
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=False)
     
+
 
