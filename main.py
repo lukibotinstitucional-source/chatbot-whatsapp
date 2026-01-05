@@ -116,13 +116,15 @@ def home():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    print("📩 Webhook llamado correctamente")
-    incoming_msg = request.values.get("Body", "SIN MENSAJE")
+    mensaje = request.form.get("Body", "").strip().lower()
+
+    respuesta = procesar_mensaje(mensaje)  # TU lógica
 
     resp = MessagingResponse()
-    resp.message(f"Mensaje recibido: {incoming_msg}")
+    resp.message(respuesta)
     return str(resp)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=False)
     
+
