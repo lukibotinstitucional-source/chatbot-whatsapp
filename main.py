@@ -136,7 +136,7 @@ def obtener_materias(usuario):
         materias = [str(row[0]) for row in ws.iter_rows(values_only=True) if row[0]]
         return "📚 *Materias del curso {}*:\n- ".format(usuario["curso"]) + "\n- ".join(materias) if materias else "❌ No se encontraron materias."
     except Exception as e:
-        return f"❌ Error al obtener materias: {str(e)}
+        return f"❌ Error al obtener materias: {str(e)}"
 
 def obtener_profesores(usuario):
     try:
@@ -325,3 +325,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
