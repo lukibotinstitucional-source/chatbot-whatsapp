@@ -48,7 +48,7 @@ def leer_txt(nombre_archivo):
     except FileNotFoundError:
         return "❌ Archivo de información no encontrado."
 
-# 🔹 Funciones Excel
+# 🔹 Funciones Excel (copiadas de tu código funcional)
 def obtener_horario(usuario):
     archivo = os.path.join("datos", usuario.get("curso", "").strip() + ".xlsx")
     if not os.path.exists(archivo):
@@ -234,36 +234,14 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
         if mensaje in sub:
             opcion_texto = sub[mensaje]
 
-            # ⚠ Restricciones para estudiantes
-            if usuario_actual["rol"].lower() == "estudiante" and opcion_texto in [
-                "Solicitar claves del Wi-Fi institucional",
-                "Reglamento interno para docentes"
-            ]:
-                return "🚫 No tienes permiso para acceder a esta opción."
-
-            # 🔹 Manejo de "Salir del chatbot"
-            if opcion_actual == "10":  # Opción salir
-                if mensaje == "1" or opcion_texto.lower() == "finalizar conversación":
-                    sesion.update({
-                        "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
-                        "nivel": "menu_principal",
-                        "opcion": None,
-                        "ultimo": ahora
-                    })
-                    return "🔄 Sesión finalizada. Por favor ingresa tu número de cédula para iniciar nuevamente."
-                if mensaje == "2" or opcion_texto.lower() == "volver al inicio":
-                    sesion["nivel"] = "menu_principal"
-                    sesion["opcion"] = None
-                    return mostrar_menu_principal()
-
-            # 🔹 Llamadas automáticas
+            # 🔹 Aquí llamamos automáticamente a la función correspondiente
             if "horario" in opcion_texto.lower():
-                if usuario_actual["rol"].lower() == "docente":
+                if usuario_actual["rol"] == "docente":
                     return obtener_horario_docente(usuario_actual)
                 else:
                     return obtener_horario(usuario_actual)
             if "materias" in opcion_texto.lower():
-                if usuario_actual["rol"].lower() == "docente":
+                if usuario_actual["rol"] == "docente":
                     return obtener_materias_docente(usuario_actual)
                 else:
                     return obtener_materias(usuario_actual)
@@ -272,10 +250,9 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             if "plataforma educativa" in opcion_texto.lower():
                 return obtener_claves(usuario_actual)
             if "valores pendientes" in opcion_texto.lower():
-                if usuario_actual["rol"].lower() == "docente":
+                if usuario_actual["rol"] == "docente":
                     return "🚫 Estimado docente, esta opción no está disponible para su rol."
                 return obtener_valores_pendientes(usuario_actual)
-
             # TXT
             txt = leer_txt(opcion_texto)
             if txt != "❌ Archivo de información no encontrado.":
@@ -290,7 +267,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
 # 🔹 Webhook Flask
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    mensaje = request.form.get("Body", "").strip()
+    mensaje = request.form.get("Body", "").strip().lower()
     usuario_id = request.form.get("From")
 
     # Crear sesión si no existe
@@ -304,10 +281,6 @@ def webhook():
 
     sesion = sesiones[usuario_id]
     respuesta = procesar_mensaje_multiusuario(mensaje, sesion)
-
-    print(f"Mensaje recibido: {mensaje}")
-    print(f"Usuario ID: {usuario_id}")
-    print(f"Respuesta enviada: {respuesta}")
 
     resp = MessagingResponse()
     resp.message(respuesta)
