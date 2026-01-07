@@ -179,6 +179,21 @@ def obtener_valores_pendientes(usuario):
 def procesar_mensaje_multiusuario(mensaje, sesion):
     mensaje = mensaje.strip().lower()
     ahora = datetime.now()
+
+        # 🚪 Salir del chatbot en cualquier momento
+    if mensaje in ["salir", "exit", "cancelar"]:
+        sesion.update({
+            "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
+            "nivel": "menu_principal",
+            "opcion": None,
+            "ultimo": ahora
+        })
+        return (
+            "🔄 Has salido del chatbot.\n\n"
+            "👋 ¡Hola! Soy *Lukibot*.\n"
+            "Por favor ingresa tu número de cédula para iniciar nuevamente."
+        )
+        
     usuario_actual = sesion["usuario"]
     nivel_actual = sesion["nivel"]
     opcion_actual = sesion["opcion"]
@@ -292,3 +307,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
