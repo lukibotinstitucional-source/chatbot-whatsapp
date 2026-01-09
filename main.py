@@ -182,12 +182,11 @@ def obtener_valores_pendientes(usuario):
     except Exception as e:
         return f"❌ Error al obtener valores pendientes: {str(e)}"
 
-# 🔹 Procesar mensajes (multiusuario) con restricciones y opción de salir
 def procesar_mensaje_multiusuario(mensaje, sesion):
     mensaje = mensaje.strip().lower()
     ahora = datetime.now()
 
-        # 🚪 Salir del chatbot en cualquier momento
+    # 🚪 Salir del chatbot en cualquier momento
     if mensaje in ["salir", "exit", "cancelar"]:
         sesion.update({
             "usuario": {"rol": None, "nombre": None, "curso": None, "archivo": None, "cedula": None},
@@ -200,7 +199,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             "👋 ¡Hola! Soy *Lukibot*.\n"
             "Por favor ingresa tu número de cédula para iniciar nuevamente."
         )
-    
+
     usuario_actual = sesion["usuario"]
     nivel_actual = sesion["nivel"]
     opcion_actual = sesion["opcion"]
