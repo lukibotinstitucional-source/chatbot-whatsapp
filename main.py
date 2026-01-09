@@ -47,6 +47,13 @@ def leer_txt(nombre_archivo):
             return f.read()
     except FileNotFoundError:
         return "❌ Archivo de información no encontrado."
+    
+def limpiar_sesiones():
+    ahora = datetime.now()
+    for uid in list(sesiones.keys()):
+        ultimo = sesiones[uid].get("ultimo")
+        if ultimo and (ahora - ultimo > timedelta(minutes=30)):
+            del sesiones[uid]
 
 # 🔹 Funciones Excel (copiadas de tu código funcional)
 def obtener_horario(usuario):
@@ -305,6 +312,8 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
 # 🔹 Webhook Flask
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    limpiar_sesiones()
+    
     mensaje = request.form.get("Body", "").strip().lower()
     usuario_id = request.form.get("From")
 
