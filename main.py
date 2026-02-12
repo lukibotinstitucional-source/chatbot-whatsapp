@@ -215,7 +215,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
         })
         return ("⏰ La sesión se cerró por inactividad.\n\n"
                 "👋 ¡Hola! Soy *Lukibot*, el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor*.\n"
-                "Por favor ingresa tu número de cédula.")
+                "Por favor ingresa tu número de cédula, si eres docente ingresa tu usuario o contraseña.")
 
     sesion["ultimo"] = ahora
 
@@ -337,3 +337,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
