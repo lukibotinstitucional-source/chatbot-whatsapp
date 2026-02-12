@@ -233,8 +233,9 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
             else:
                 return "⚠ Cédula no encontrada. Verifica tu número e intenta nuevamente."
         else:
-            return ("👋 ¡Hola! Soy *Lukibot*.\n"
-                    "Por favor ingresa tu número de cédula (solo números).")
+            return ("👋 ¡Hola! Soy el asistente virtual de la *Unidad Educativa María Luisa Luque de Sotomayor* 🤖\n\n"
+                    "Estoy aquí para ayudarte con información académica e institucional.\n"
+                    "Para comenzar, por favor ingresa tu número de cédula (solo números), si eres docente utiliza tu usuario o contraseña")
 
     # 📋 Menú principal
     if nivel_actual == "menu_principal":
@@ -338,3 +339,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
