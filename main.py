@@ -312,7 +312,7 @@ def procesar_mensaje_multiusuario(mensaje, sesion):
 def webhook():
     limpiar_sesiones()
     
-    mensaje = request.form.get("Body", "").strip().lower()
+    mensaje = request.form.get("Body", "").strip()
     usuario_id = request.form.get("From")
 
     # Crear sesión si no existe
@@ -337,4 +337,5 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
 
